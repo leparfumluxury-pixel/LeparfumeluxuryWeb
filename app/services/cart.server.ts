@@ -1,5 +1,4 @@
 import { createCookieSessionStorage } from "react-router";
-import { getSessionSecret } from "~/utils/env.server";
 
 export interface CartItem {
   productId: number;
@@ -10,33 +9,46 @@ export interface CartItem {
   quantity: number;
 }
 
-// Validate early so Vercel logs show a clear message instead of a crypto crash.
-getSessionSecret();
+type CartStorage = ReturnType<typeof createCookieSessionStorage>;
+let _cartStorage: CartStorage | null = null;
 
-const cartStorage = createCookieSessionStorage({
-  cookie: {
-    name: "__maison_noir_cart",
-    httpOnly: true,
-    maxAge: 60 * 60 * 24 * 30, // 30 days
-    path: "/",
-    sameSite: "lax",
-    secrets: [process.env.SESSION_SECRET!],
-    secure: process.env.NODE_ENV === "production",
-  },
-});
+function getCartStorage(): CartStorage {
+  if (!_cartStorage) {
+    const secret = process.env.SESSION_SECRET?.trim();
+    if (!secret) {
+      throw new Error(
+        "Missing required environment variable: SESSION_SECRET. Add it in Vercel → Project Settings → Environment Variables (Production), then redeploy.",
+      );
+    }
+    _cartStorage = createCookieSessionStorage({
+      cookie: {
+        name: "__maison_noir_cart",
+        httpOnly: true,
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+        path: "/",
+        sameSite: "lax",
+        secrets: [secret],
+        secure: process.env.NODE_ENV === "production",
+      },
+    });
+  }
+  return _cartStorage;
+}
 
 export async function getCart(request: Request): Promise<CartItem[]> {
-  const session = await cartStorage.getSession(request.headers.get("Cookie"));
-  return session.get("cart") || [];
+  const session = await getCartStorage().getSession(
+    request.headers.get("Cookie"),
+  );
+  return (session.get("cart") as CartItem[] | undefined) || [];
 }
 
 export async function addToCart(request: Request, item: CartItem) {
+  const cartStorage = getCartStorage();
   const session = await cartStorage.getSession(request.headers.get("Cookie"));
-  const cart: CartItem[] = session.get("cart") || [];
+  const cart: CartItem[] =
+    (session.get("cart") as CartItem[] | undefined) || [];
 
-  const existingIndex = cart.findIndex(
-    (i) => i.productId === item.productId,
-  );
+  const existingIndex = cart.findIndex((i) => i.productId === item.productId);
 
   if (existingIndex >= 0) {
     cart[existingIndex].quantity += item.quantity;
@@ -53,8 +65,10 @@ export async function updateCartQuantity(
   productId: number,
   quantity: number,
 ) {
+  const cartStorage = getCartStorage();
   const session = await cartStorage.getSession(request.headers.get("Cookie"));
-  const cart: CartItem[] = session.get("cart") || [];
+  const cart: CartItem[] =
+    (session.get("cart") as CartItem[] | undefined) || [];
 
   const index = cart.findIndex((i) => i.productId === productId);
   if (index >= 0) {
@@ -70,8 +84,10 @@ export async function updateCartQuantity(
 }
 
 export async function removeFromCart(request: Request, productId: number) {
+  const cartStorage = getCartStorage();
   const session = await cartStorage.getSession(request.headers.get("Cookie"));
-  const cart: CartItem[] = session.get("cart") || [];
+  const cart: CartItem[] =
+    (session.get("cart") as CartItem[] | undefined) || [];
 
   const filtered = cart.filter((i) => i.productId !== productId);
   session.set("cart", filtered);
@@ -79,6 +95,7 @@ export async function removeFromCart(request: Request, productId: number) {
 }
 
 export async function clearCart(request: Request) {
+  const cartStorage = getCartStorage();
   const session = await cartStorage.getSession(request.headers.get("Cookie"));
   session.set("cart", []);
   return cartStorage.commitSession(session);
@@ -95,11 +112,14 @@ export function getCartCount(cart: CartItem[]): number {
 export async function getAppliedCoupon(
   request: Request,
 ): Promise<string | null> {
-  const session = await cartStorage.getSession(request.headers.get("Cookie"));
-  return session.get("coupon") || null;
+  const session = await getCartStorage().getSession(
+    request.headers.get("Cookie"),
+  );
+  return (session.get("coupon") as string | undefined) || null;
 }
 
 export async function setAppliedCoupon(request: Request, code: string | null) {
+  const cartStorage = getCartStorage();
   const session = await cartStorage.getSession(request.headers.get("Cookie"));
   if (code) {
     session.set("coupon", code.toUpperCase());

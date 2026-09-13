@@ -15,6 +15,20 @@ export function getSessionSecret(): string {
   return requireEnv("SESSION_SECRET");
 }
 
+/**
+ * Neon connection strings often include `channel_binding=require`.
+ * Keep sslmode=require; drop channel_binding to avoid proxy/TLS quirks.
+ */
 export function getDatabaseUrl(): string {
-  return requireEnv("DATABASE_URL");
+  const raw = requireEnv("DATABASE_URL");
+  try {
+    const url = new URL(raw);
+    url.searchParams.delete("channel_binding");
+    if (!url.searchParams.has("sslmode")) {
+      url.searchParams.set("sslmode", "require");
+    }
+    return url.toString();
+  } catch {
+    return raw;
+  }
 }
