@@ -1,4 +1,5 @@
 import { createCookieSessionStorage } from "react-router";
+import { getSessionSecret } from "~/utils/env.server";
 
 export interface CartItem {
   productId: number;
@@ -8,6 +9,9 @@ export interface CartItem {
   image: string;
   quantity: number;
 }
+
+// Validate early so Vercel logs show a clear message instead of a crypto crash.
+getSessionSecret();
 
 const cartStorage = createCookieSessionStorage({
   cookie: {
@@ -31,7 +35,7 @@ export async function addToCart(request: Request, item: CartItem) {
   const cart: CartItem[] = session.get("cart") || [];
 
   const existingIndex = cart.findIndex(
-    (i) => i.productId === item.productId
+    (i) => i.productId === item.productId,
   );
 
   if (existingIndex >= 0) {
@@ -47,7 +51,7 @@ export async function addToCart(request: Request, item: CartItem) {
 export async function updateCartQuantity(
   request: Request,
   productId: number,
-  quantity: number
+  quantity: number,
 ) {
   const session = await cartStorage.getSession(request.headers.get("Cookie"));
   const cart: CartItem[] = session.get("cart") || [];
@@ -88,7 +92,9 @@ export function getCartCount(cart: CartItem[]): number {
   return cart.reduce((sum, item) => sum + item.quantity, 0);
 }
 
-export async function getAppliedCoupon(request: Request): Promise<string | null> {
+export async function getAppliedCoupon(
+  request: Request,
+): Promise<string | null> {
   const session = await cartStorage.getSession(request.headers.get("Cookie"));
   return session.get("coupon") || null;
 }
@@ -102,4 +108,3 @@ export async function setAppliedCoupon(request: Request, code: string | null) {
   }
   return cartStorage.commitSession(session);
 }
-

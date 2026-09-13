@@ -1,4 +1,8 @@
 import { createCookieSessionStorage } from "react-router";
+import { getSessionSecret } from "~/utils/env.server";
+
+// Validate early so Vercel logs show a clear message instead of a crypto crash.
+getSessionSecret();
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
