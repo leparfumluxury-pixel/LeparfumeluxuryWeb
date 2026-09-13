@@ -1,0 +1,224 @@
+@import "tailwindcss";
+
+/* ─── Le Parfume Luxury Design System ───────────────────────────── */
+@theme {
+  /* Typography */
+  --font-heading: "Cormorant Garamond", "Georgia", serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Noir Palette */
+  --color-noir-bg: #0a0a0a;
+  --color-noir-surface: #141414;
+  --color-noir-elevated: #1a1a1a;
+  --color-noir-border: #1e1e1e;
+  --color-noir-muted: #2a2a2a;
+  --color-noir-subtle: #333333;
+
+  /* Cream Palette */
+  --color-cream: #f5f0eb;
+  --color-cream-muted: #a89f95;
+  --color-cream-dark: #8a8079;
+  --color-cream-warm: #e8ddd3;
+
+  /* Gold Palette */
+  --color-gold: #c9a96e;
+  --color-gold-light: #dcc498;
+  --color-gold-dark: #a88a4e;
+  --color-gold-glow: rgba(201, 169, 110, 0.15);
+}
+
+/* ─── Base Styles ───────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-noir-bg);
+  color: var(--color-cream);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: var(--color-gold);
+  color: var(--color-noir-bg);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-noir-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-noir-muted);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-dark);
+}
+
+/* ─── Typography ────────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+/* ─── Animations ────────────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 169, 110, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(201, 169, 110, 0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+/* Staggered children animation */
+.stagger-children > * {
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.4s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.5s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.6s; }
+
+/* ─── Utility Classes ───────────────────────────────────────────── */
+.gold-gradient {
+  background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold), var(--color-gold-light));
+}
+
+.gold-text-gradient {
+  background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold), var(--color-gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass-surface {
+  background: rgba(20, 20, 20, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-noir-border);
+}
+
+.hover-gold-border {
+  position: relative;
+}
+
+.hover-gold-border::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--color-gold);
+  transition: width 0.3s ease;
+}
+
+.hover-gold-border:hover::after {
+  width: 100%;
+}
+
+/* Product card image zoom */
+.product-image-container {
+  overflow: hidden;
+}
+
+.product-image-container img {
+  transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.product-image-container:hover img {
+  transform: scale(1.05);
+}
+
+/* ─── Rich Text Content ─────────────────────────────────────────── */
+.prose-noir {
+  color: var(--color-cream);
+}
+
+.prose-noir h2 {
+  font-family: var(--font-heading);
+  color: var(--color-cream);
+  font-size: 1.875rem;
+  margin-top: 2em;
+  margin-bottom: 0.75em;
+}
+
+.prose-noir p {
+  color: var(--color-cream-muted);
+  margin-bottom: 1.25em;
+  line-height: 1.8;
+}
+
+.prose-noir a {
+  color: var(--color-gold);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose-noir blockquote {
+  border-left: 2px solid var(--color-gold);
+  padding-left: 1.5em;
+  color: var(--color-cream-muted);
+  font-style: italic;
+}
+
+.prose-noir img {
+  border-radius: 0.5rem;
+  margin: 2em 0;
+}

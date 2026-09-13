@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1778417877213,
+      "tag": "0000_friendly_marvel_zombies",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778432029170,
+      "tag": "0001_lowly_romulus",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789310986463,
+      "tag": "0002_orders_shipping_address",
+      "breakpoints": true
+    }
+  ]
+}
